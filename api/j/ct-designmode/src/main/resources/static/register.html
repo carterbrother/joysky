@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户注册</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            width: 100%;
+            max-width: 480px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .register-header h1 {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .register-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .verification-group {
+            display: flex;
+            gap: 12px;
+            align-items: stretch;
+        }
+
+        .verification-group input {
+            flex: 1;
+        }
+
+        .verification-group .verify-btn {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            min-width: 110px;
+            transition: all 0.3s ease;
+        }
+
+        .verification-group .verify-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .verification-group .verify-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .captcha-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .captcha-group input {
+            flex: 1;
+        }
+
+        .captcha-group img {
+            height: 50px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .captcha-group img:hover {
+            border-color: #ff6b35;
+            transform: scale(1.05);
+        }
+
+        .register-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.4);
+        }
+
+        .register-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+            padding: 8px 12px;
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 6px;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .login-link a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #f7931e;
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            border-left: 3px solid #27ae60;
+        }
+
+        .message.error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            border-left: 3px solid #e74c3c;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            .register-header h1 {
+                font-size: 2rem;
+            }
+
+            .verification-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .verification-group .verify-btn {
+                min-width: auto;
+            }
+
+            .captcha-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .captcha-group img {
+                align-self: center;
+                width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>用户注册</h1>
+            <p>创建您的账户，开始精彩旅程</p>
+        </div>
+
+        <div id="message" class="message"></div>
+        <div id="loading" class="loading">正在处理中...</div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required minlength="3" maxlength="20" placeholder="请输入用户名">
+                <div class="error-message" id="username-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required minlength="6" placeholder="请输入密码">
+                <div class="error-message" id="password-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">手机号码</label>
+                <div class="verification-group">
+                    <input type="tel" id="phone" name="phone" required pattern="^1[3-9]\d{9}$" placeholder="请输入手机号">
+                    <button type="button" class="verify-btn" id="smsBtn" onclick="sendSmsCode()">获取验证码</button>
+                </div>
+                <div class="error-message" id="phone-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="smsCode">短信验证码</label>
+                <input type="text" id="smsCode" name="smsCode" required maxlength="6" placeholder="请输入短信验证码">
+                <div class="error-message" id="smsCode-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <div class="verification-group">
+                    <input type="email" id="email" name="email" required placeholder="请输入邮箱地址">
+                    <button type="button" class="verify-btn" id="emailBtn" onclick="sendEmailCode()">获取验证码</button>
+                </div>
+                <div class="error-message" id="email-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="emailCode">邮箱验证码</label>
+                <input type="text" id="emailCode" name="emailCode" required maxlength="6" placeholder="请输入邮箱验证码">
+                <div class="error-message" id="emailCode-error"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="imgCode">图形验证码</label>
+                <div class="captcha-group">
+                    <input type="text" id="imgCode" name="imgCode" required maxlength="6" placeholder="请输入图形验证码">
+                    <img id="captchaImage" alt="图形验证码" onclick="refreshCaptcha()" title="点击刷新验证码">
+                </div>
+                <div class="error-message" id="imgCode-error"></div>
+            </div>
+
+            <button type="submit" class="register-btn">立即注册</button>
+        </form>
+
+        <div class="login-link">
+            <span>已有账户？</span>
+            <a href="login.html">立即登录</a>
+        </div>
+    </div>
+
+    <script>
+        let imgUuid = '';
+        let smsCountdown = 0;
+        let emailCountdown = 0;
+
+        function showMessage(message, type = 'error') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = message;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageEl.style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        function hideMessage() {
+            document.getElementById('message').style.display = 'none';
+        }
+
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        function clearError(elementId) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.style.display = 'none';
+        }
+
+        function clearAllErrors() {
+            const errorElements = document.getElementsByClassName('error-message');
+            Array.from(errorElements).forEach(element => element.style.display = 'none');
+        }
+
+        function startCountdown(buttonId, seconds) {
+            const button = document.getElementById(buttonId);
+            let countdown = seconds;
+            button.disabled = true;
+            
+            const timer = setInterval(() => {
+                button.textContent = `${countdown}秒后重试`;
+                countdown--;
+                
+                if (countdown < 0) {
+                    clearInterval(timer);
+                    button.disabled = false;
+                    button.textContent = '获取验证码';
+                }
+            }, 1000);
+        }
+
+        async function sendSmsCode() {
+            const phone = document.getElementById('phone').value;
+            if (!phone.match(/^1[3-9]\d{9}$/)) {
+                showError('phone-error', '请输入有效的手机号码');
+                return;
+            }
+            
+            clearError('phone-error');
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/users/sms-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ phone: phone })
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showMessage('验证码已发送到您的手机', 'success');
+                    startCountdown('smsBtn', 60);
+                } else {
+                    showError('phone-error', data.message || '发送失败，请稍后重试');
+                }
+            } catch (error) {
+                showError('phone-error', '发送验证码失败，请稍后重试');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function sendEmailCode() {
+            const email = document.getElementById('email').value;
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                showError('email-error', '请输入有效的邮箱地址');
+                return;
+            }
+
+            clearError('email-error');
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/users/email-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email: email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showMessage('验证码已发送到您的邮箱', 'success');
+                    startCountdown('emailBtn', 60);
+                } else {
+                    showError('email-error', data.message || '发送失败，请稍后重试');
+                }
+            } catch (error) {
+                showError('email-error', '发送验证码失败，请稍后重试');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function refreshCaptcha() {
+            try {
+                const response = await fetch('/api/users/img-code');
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    document.getElementById('captchaImage').src = 'data:image/png;base64,' + data.data.imgCode;
+                    imgUuid = data.data.imgUuid;
+                    clearError('imgCode-error');
+                } else {
+                    showError('imgCode-error', '获取验证码失败，请点击刷新');
+                }
+            } catch (error) {
+                showError('imgCode-error', '获取验证码失败，请点击刷新');
+            }
+        }
+
+        // 页面加载时获取验证码
+        window.addEventListener('load', function() {
+            refreshCaptcha();
+        });
+
+        // 表单提交处理
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            
+            clearAllErrors();
+            hideMessage();
+            showLoading();
+
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value,
+                smsCode: document.getElementById('smsCode').value,
+                email: document.getElementById('email').value,
+                emailCode: document.getElementById('emailCode').value,
+                imgCode: document.getElementById('imgCode').value,
+                imgUuid: imgUuid
+            };
+
+            try {
+                const response = await fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showMessage('注册成功！正在跳转到登录页面...', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/login.html';
+                    }, 2000);
+                } else {
+                    if (data.message) {
+                        const fieldErrors = data.message.split(';');
+                        fieldErrors.forEach(error => {
+                            const [field, message] = error.split(':');
+                            if (field && message) {
+                                showError(`${field}-error`, message);
+                            }
+                        });
+                    } else {
+                        showMessage('注册失败，请检查输入信息');
+                    }
+                    refreshCaptcha();
+                }
+            } catch (error) {
+                showMessage('注册失败，请稍后重试');
+                refreshCaptcha();
+            } finally {
+                hideLoading();
+            }
+        });
+
+        // 输入框焦点事件，清除错误信息
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                const errorId = this.id + '-error';
+                clearError(errorId);
+                hideMessage();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/css/bootstrap.min.css">
+    <style>
+        body { background: #f8f9fa; }
+        .login-box { max-width: 400px; margin: 80px auto 0; padding: 32px 32px 26px; background: #fff; border-radius: 8px; box-shadow:0 2px 12px rgba(0,0,0,0.07); }
+        .captcha-img { cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="login-box">
+    <h4 class="mb-4">用户登录</h4>
+    <form id="loginForm">
+        <div class="form-group">
+            <label>账号</label>
+            <input type="text" class="form-control" id="username" name="username" required placeholder="用户名/手机号/邮箱">
+        </div>
+        <div class="form-group">
+            <label>密码</label>
+            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+        </div>
+        <div class="form-group">
+            <label>图形验证码</label>
+            <div class="input-group">
+                <input type="text" class="form-control" id="imgCode" name="imgCode" required maxlength="6" style="max-width:120px;">
+                <input type="hidden" id="imgUuid">
+                <div class="input-group-append">
+                    <img id="captchaImage" class="captcha-img" src="" alt="验证码" title="点击刷新">
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block mt-3">登录</button>
+    </form>
+    <div class="text-center mt-3">
+        <a href="register.html">没有账号？点击注册</a>
+        <span class="mx-2">|</span>
+        <a href="forgot-password.html">忘记密码？</a>
+    </div>
+</div>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.6.2/js/bootstrap.bundle.min.js"></script>
+<script>
+// 刷新图形验证码
+function refreshCaptcha() {
+    $.get("/api/users/img-code", function(data) {
+        if (data.code === 200) {
+            $('#imgUuid').val(data.data.imgUuid);
+            $('#captchaImage').attr('src', 'data:image/png;base64,' + data.data.imgCode);
+        } else {
+            $('#captchaImage').attr('src', '');
+        }
+    });
+}
+
+$(function () {
+    refreshCaptcha();
+    $('#captchaImage').on('click', refreshCaptcha);
+    $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+        const params = {
+            username: $('#username').val(),
+            password: $('#password').val(),
+            imgCode: $('#imgCode').val(),
+            imgUuid: $('#imgUuid').val() // 确保传递imgUuid
+        };
+        $.ajax({
+            url: '/api/users/login',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(params),
+            success: function(data) {
+                if (data.code === 200) {
+                    alert('登录成功！');
+                    window.location.href = 'user-admin.html';
+                } else {
+                    alert(data.msg);
+                    refreshCaptcha();
+                }
+            }
+        });
+    });
+});
+</script>
+</body>
+</html>

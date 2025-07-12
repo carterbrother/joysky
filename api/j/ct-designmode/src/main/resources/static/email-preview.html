@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>邮件模板预览</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        .preview-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .preview-header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .preview-content {
+            padding: 20px;
+        }
+        .email-frame {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            background: white;
+        }
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        .code-input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 0 10px;
+            width: 100px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>📧 邮件模板预览</h1>
+            <p>密码重置验证码邮件效果预览</p>
+        </div>
+        
+        <div class="preview-content">
+            <div class="controls">
+                <label>验证码：</label>
+                <input type="text" id="codeInput" class="code-input" value="123456" maxlength="6">
+                <button class="btn" onclick="updatePreview()">更新预览</button>
+                <button class="btn" onclick="generateRandomCode()">随机生成</button>
+            </div>
+            
+            <div class="email-frame" id="emailFrame">
+                <!-- 邮件内容将在这里显示 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getEmailTemplate(code) {
+            return `
+<!DOCTYPE html>
+<html lang='zh-CN'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>密码重置验证码</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f8f9fa; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 30px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; font-weight: 300; }
+        .header p { font-size: 16px; opacity: 0.9; }
+        .content { padding: 40px 30px; }
+        .code-section { text-align: center; margin: 30px 0; }
+        .code-label { font-size: 16px; color: #555; margin-bottom: 15px; }
+        .code-box { display: inline-block; background: linear-gradient(45deg, #ff6b6b, #ffa500); color: white; padding: 20px 40px; border-radius: 15px; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 10px 0; box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3); }
+        .info-section { background: #f8f9fa; border-radius: 15px; padding: 25px; margin: 25px 0; }
+        .info-title { font-size: 18px; color: #333; margin-bottom: 15px; font-weight: 600; }
+        .info-list { list-style: none; }
+        .info-list li { color: #666; margin-bottom: 8px; padding-left: 20px; position: relative; }
+        .info-list li:before { content: '•'; color: #667eea; font-weight: bold; position: absolute; left: 0; }
+        .warning { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .warning-title { color: #856404; font-weight: 600; margin-bottom: 10px; }
+        .warning-text { color: #856404; font-size: 14px; }
+        .footer { background: #f8f9fa; padding: 30px; text-align: center; border-top: 1px solid #e9ecef; }
+        .footer p { color: #666; font-size: 14px; line-height: 1.6; }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        @media (max-width: 600px) {
+            .container { margin: 10px; border-radius: 15px; }
+            .header { padding: 30px 20px; }
+            .content { padding: 30px 20px; }
+            .code-box { font-size: 24px; padding: 15px 30px; letter-spacing: 4px; }
+        }
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>🔐 密码重置</h1>
+            <p>您的密码重置验证码已生成</p>
+        </div>
+        
+        <div class='content'>
+            <div class='code-section'>
+                <div class='code-label'>您的验证码是：</div>
+                <div class='code-box'>${code}</div>
+            </div>
+            
+            <div class='info-section'>
+                <div class='info-title'>📋 使用说明</div>
+                <ul class='info-list'>
+                    <li>请在密码重置页面输入此验证码</li>
+                    <li>验证码有效期为 15 分钟</li>
+                    <li>验证码仅可使用一次</li>
+                    <li>请勿将验证码告知他人</li>
+                </ul>
+            </div>
+            
+            <div class='warning'>
+                <div class='warning-title'>⚠️ 安全提醒</div>
+                <div class='warning-text'>
+                    如果您没有申请密码重置，请忽略此邮件。为了您的账户安全，请定期更换密码，并使用强密码。
+                </div>
+            </div>
+        </div>
+        
+        <div class='footer'>
+            <p>
+                此邮件由系统自动发送，请勿回复。<br>
+                如有疑问，请联系 <a href='mailto:support@example.com'>技术支持</a>
+            </p>
+            <p style='margin-top: 15px; color: #999; font-size: 12px;'>
+                © 2024 密码重置服务. 保留所有权利。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+            `;
+        }
+
+        function updatePreview() {
+            const code = document.getElementById('codeInput').value || '123456';
+            const emailFrame = document.getElementById('emailFrame');
+            emailFrame.innerHTML = getEmailTemplate(code);
+        }
+
+        function generateRandomCode() {
+            const code = Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
+            document.getElementById('codeInput').value = code;
+            updatePreview();
+        }
+
+        // 页面加载时初始化预览
+        document.addEventListener('DOMContentLoaded', function() {
+            updatePreview();
+        });
+
+        // 输入框变化时自动更新预览
+        document.getElementById('codeInput').addEventListener('input', updatePreview);
+    </script>
+</body>
+</html>

@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户管理后台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .admin-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .admin-content {
+            padding: 40px;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            width: 250px;
+            height: 40px;
+            padding: 0 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .table-container {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            position: relative;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            backdrop-filter: blur(2px);
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b35;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .user-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            padding: 16px;
+            text-align: left;
+            border-bottom: 2px solid #e1e5e9;
+        }
+
+        .user-table td {
+            padding: 16px;
+            border-bottom: 1px solid #e1e5e9;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #138496;
+            transform: translateY(-1px);
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.3s ease;
+        }
+
+        .close:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+        }
+
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 1px solid #e1e5e9;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .admin-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+
+            .admin-content {
+                padding: 20px;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .search-input {
+                width: 100%;
+            }
+
+            .user-table {
+                font-size: 12px;
+            }
+
+            .user-table th,
+            .user-table td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1 class="admin-title">用户管理后台</h1>
+            <a href="login.html" class="logout-btn">退出登录</a>
+        </div>
+        
+        <div class="admin-content">
+            <div class="action-bar">
+                <button class="add-btn" onclick="openAddModal()">
+                    <span>+</span>
+                    新增用户
+                </button>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索用户名、手机号或邮箱...">
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-spinner"></div>
+                </div>
+                
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>手机号</th>
+                            <th>邮箱</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <!-- 数据将通过JavaScript动态加载 -->
+                    </tbody>
+                </table>
+                
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM21 9V7L15 1H5C3.89 1 3 1.89 3 3V21C3 22.11 3.89 23 5 23H19C20.11 23 21 22.11 21 21V9M19 9H14V4H5V21H19V9Z"/>
+                    </svg>
+                    <p>暂无用户数据</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑模态框 -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="userModalLabel">用户信息</h2>
+                <button class="close" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="userForm">
+                <div class="modal-body">
+                    <input type="hidden" id="userId">
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input type="text" class="form-input" id="username" required placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">手机号</label>
+                        <input type="text" class="form-input" id="phone" required maxlength="11" placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱</label>
+                        <input type="email" class="form-input" id="email" required placeholder="请输入邮箱地址">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input type="password" class="form-input" id="password" required minlength="6" placeholder="请输入密码（至少6位）">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                    <button type="submit" class="btn btn-primary">确定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        let filteredUsers = [];
+        
+        // 显示加载状态
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        // 隐藏加载状态
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // 显示消息提示
+        function showMessage(message, type = 'info') {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-size: 14px;
+                z-index: 9999;
+                max-width: 300px;
+                word-wrap: break-word;
+                transition: all 0.3s ease;
+                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                messageDiv.style.transform = 'translateX(100%)';
+                setTimeout(() => {
+                    if (messageDiv.parentNode) {
+                        messageDiv.parentNode.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // 加载用户列表（优化版本）
+        async function loadUsers() {
+            showLoading();
+            try {
+                const response = await fetch('/admin/users');
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    users = data.data || [];
+                    filteredUsers = [...users];
+                    renderUsers();
+                } else {
+                    showMessage('加载用户失败: ' + data.msg, 'error');
+                }
+            } catch (error) {
+                console.error('加载用户失败:', error);
+                showMessage('网络错误，请检查网络连接', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 渲染用户列表
+        function renderUsers() {
+            const tbody = document.getElementById('userTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredUsers.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            const rows = filteredUsers.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.username}</td>
+                    <td>${user.phoneMasked || user.phone}</td>
+                    <td>${user.emailMasked || user.email}</td>
+                    <td>
+                        <button class='action-btn edit-btn' onclick='editUser(${user.id})'>编辑</button>
+                        <button class='action-btn delete-btn' onclick='deleteUser(${user.id})'>删除</button>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = rows;
+        }
+        
+        // 搜索功能
+        function filterUsers() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filteredUsers = users.filter(user => 
+                user.username.toLowerCase().includes(searchTerm) ||
+                (user.phone && user.phone.includes(searchTerm)) ||
+                (user.email && user.email.toLowerCase().includes(searchTerm))
+            );
+            renderUsers();
+        }
+        
+        // 防抖搜索
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(filterUsers, 300);
+        });
+        
+        // 打开新增模态框
+        function openAddModal() {
+            document.getElementById('userId').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('userModalLabel').textContent = '新增用户';
+            document.getElementById('userModal').style.display = 'block';
+        }
+        
+        // 编辑用户
+        async function editUser(id) {
+            try {
+                const response = await fetch(`/admin/users/${id}`);
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    const user = data.data;
+                    document.getElementById('userId').value = user.id;
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('phone').value = user.phone;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('password').value = '';
+                    document.getElementById('userModalLabel').textContent = '编辑用户';
+                    document.getElementById('userModal').style.display = 'block';
+                } else {
+                    showMessage(data.msg, 'error');
+                }
+            } catch (error) {
+                showMessage('获取用户信息失败', 'error');
+            }
+        }
+        
+        // 删除用户
+        async function deleteUser(id) {
+            if (!confirm('确定要删除该用户吗？')) return;
+            
+            try {
+                const response = await fetch(`/admin/users/${id}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showMessage('删除成功', 'success');
+                    loadUsers();
+                } else {
+                    showMessage(data.msg, 'error');
+                }
+            } catch (error) {
+                showMessage('删除失败', 'error');
+            }
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        // 表单提交
+        document.getElementById('userForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('userId').value;
+            const payload = {
+                username: document.getElementById('username').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+            
+            try {
+                const url = id ? `/admin/users/${id}` : '/admin/users';
+                const method = id ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showMessage(id ? '更新成功' : '新增成功', 'success');
+                    closeModal();
+                    loadUsers();
+                } else {
+                    showMessage(data.msg, 'error');
+                }
+            } catch (error) {
+                showMessage('操作失败', 'error');
+            }
+        });
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+        });
+    </script>
+</body>
+</html>

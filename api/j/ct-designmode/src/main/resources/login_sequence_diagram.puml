@@ -1,0 +1,33 @@
+@startuml
+' 登录流程时序图
+actor User
+participant "前端(login.html)" as FE
+participant "UserController" as Controller
+participant "UserService" as Service
+participant "数据库" as DB
+
+== 获取图片验证码 ==
+User -> FE: 打开登录页
+FE -> Controller: GET /api/users/img-code
+Controller --> FE: 返回图片验证码与UUID
+
+== 提交登录信息 ==
+User -> FE: 输入账号、密码、图形验证码
+FE -> Controller: POST /api/users/login (账号、密码、imgCode、imgUuid)
+Controller -> Controller: 校验图形验证码
+alt 验证码错误
+    Controller --> FE: 返回验证码错误
+else 验证码正确
+    Controller -> Service: login(账号、密码)
+    Service -> DB: 根据账号（可为用户名/手机号/邮箱）查用户
+    DB --> Service: 返回用户记录
+    Service -> Service: 校验密码(加密比对)
+    alt 密码不正确
+        Service --> Controller: 登录失败
+        Controller --> FE: 返回密码错误
+    else 密码正确
+        Service --> Controller: 登录成功，返回用户信息
+        Controller --> FE: 登录成功，返回用户信息
+    end
+end
+@enduml

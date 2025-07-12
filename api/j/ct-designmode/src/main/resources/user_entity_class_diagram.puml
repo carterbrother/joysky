@@ -1,0 +1,17 @@
+@startuml
+' User entity class diagram
+title User Entity - 数据库表结构
+class User {
+  +Long id
+  +String username
+  +String password
+  +String phone
+  +String email
+  +String phoneEncrypted
+  +String emailEncrypted
+  +String phoneMasked
+  +String emailMasked
+  +LocalDateTime createTime
+  +LocalDateTime updateTime
+}
+@enduml

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超市收银系统</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
+        #receipt {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #000;
+        }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #receipt, #receipt * {
+                visibility: visible;
+            }
+            #receipt {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<h1>超市收银系统</h1>
+
+<table id="itemsTable">
+    <thead>
+    <tr>
+        <th>商品名称</th>
+        <th>单价</th>
+        <th>数量</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><input type="text" class="item-name" placeholder="商品名称"></td>
+        <td><input type="number" class="item-price" placeholder="单价" min="0" step="0.01"></td>
+        <td><input type="number" class="item-quantity" placeholder="数量" min="1"></td>
+        <td>
+            <button onclick="addItem()">添加</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div>
+    <label for="strategy">价格策略:</label>
+    <select id="strategy">
+        <option value="DISCOUNT_88">88折</option>
+        <option value="FULL_100_REDUCE_30">满100减30</option>
+    </select>
+</div>
+
+<div>
+    <button onclick="calculate()">计算总价</button>
+    <button id="printBtn" onclick="printReceipt()" disabled>打印收据</button>
+</div>
+
+<div id="result"></div>
+
+<div id="receipt">
+    <h2 style="text-align: center;">超市收据</h2>
+    <hr>
+    <table id="receiptItems">
+        <thead>
+        <tr>
+            <th>商品名称</th>
+            <th>单价</th>
+            <th>数量</th>
+            <th>小计</th>
+        </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+    <hr>
+    <p>总价: <span id="receiptTotal"></span></p>
+    <p>优惠策略: <span id="receiptStrategy"></span></p>
+    <p>实付金额: <span id="receiptFinal"></span></p>
+    <p style="text-align: right;">感谢惠顾!</p>
+</div>
+
+<script>
+    let items = [];
+    let currentReceipt = null;
+
+    function addItem() {
+        const row = document.querySelector('#itemsTable tbody tr');
+        const name = row.querySelector('.item-name').value;
+        const price = parseFloat(row.querySelector('.item-price').value);
+        const quantity = parseInt(row.querySelector('.item-quantity').value);
+
+        if (!name || isNaN(price) || isNaN(quantity)) {
+            alert('请填写完整的商品信息');
+            return;
+        }
+
+        items.push({ name, price, quantity });
+
+        // 添加新行到表格
+        const tbody = document.querySelector('#itemsTable tbody');
+        const newRow = document.createElement('tr');
+        newRow.innerHTML = `
+            <td>${name}</td>
+            <td>${price.toFixed(2)}</td>
+            <td>${quantity}</td>
+            <td><button onclick="removeItem(this)">删除</button></td>
+        `;
+        tbody.appendChild(newRow);
+
+        // 清空输入框
+        row.querySelector('.item-name').value = '';
+        row.querySelector('.item-price').value = '';
+        row.querySelector('.item-quantity').value = '';
+    }
+
+    function removeItem(button) {
+        const row = button.parentNode.parentNode;
+        const index = Array.from(row.parentNode.children).indexOf(row) - 1; // 减去标题行
+        items.splice(index, 1);
+        row.remove();
+    }
+
+    function calculate() {
+        if (items.length === 0) {
+            alert('请添加至少一件商品');
+            return;
+        }
+
+        const strategy = document.getElementById('strategy').value;
+
+        fetch('/api/checkout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                items: items,
+                strategyType: strategy
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            currentReceipt = data;
+            displayResult(data);
+            document.getElementById('printBtn').disabled = false;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('计算失败: ' + error.message);
+        });
+    }
+
+    function displayResult(receipt) {
+        const resultDiv = document.getElementById('result');
+        let strategyText = '';
+        switch(receipt.strategyType) {
+            case 'DISCOUNT_88':
+                strategyText = '88折';
+                break;
+            case 'FULL_100_REDUCE_30':
+                strategyText = '满100减30';
+                break;
+            default:
+                strategyText = '无优惠';
+        }
+
+        resultDiv.innerHTML = `
+            <h3>计算结果</h3>
+            <p>商品总数: ${receipt.items.length}</p>
+            <p>总价: ${receipt.totalPrice.toFixed(2)}</p>
+            <p>优惠策略: ${strategyText}</p>
+            <p>实付金额: ${receipt.finalPrice.toFixed(2)}</p>
+        `;
+
+        // 准备收据内容
+        const receiptItemsTbody = document.querySelector('#receiptItems tbody');
+        receiptItemsTbody.innerHTML = '';
+        receipt.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.price.toFixed(2)}</td>
+                <td>${item.quantity}</td>
+                <td>${(item.price * item.quantity).toFixed(2)}</td>
+            `;
+            receiptItemsTbody.appendChild(row);
+        });
+
+        document.getElementById('receiptTotal').textContent = receipt.totalPrice.toFixed(2);
+        document.getElementById('receiptStrategy').textContent = strategyText;
+        document.getElementById('receiptFinal').textContent = receipt.finalPrice.toFixed(2);
+    }
+
+    function printReceipt() {
+        if (!currentReceipt) {
+            alert('请先计算总价');
+            return;
+        }
+
+        // 显示收据区域
+        document.getElementById('receipt').style.display = 'block';
+
+        // 打印收据区域
+        window.print();
+
+        // 隐藏收据区域
+        document.getElementById('receipt').style.display = 'none';
+    }
+</script>
+</body>
+</html>

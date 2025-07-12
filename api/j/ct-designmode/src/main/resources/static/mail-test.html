@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮件发送测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .result.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .result.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #0066cc;
+        }
+        
+        .info-box h3 {
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 邮件发送测试</h1>
+            <p>测试邮件发送功能和限速保护</p>
+        </div>
+        
+        <div class="info-box">
+            <h3>🛡️ 限速保护说明</h3>
+            <ul>
+                <li>每个邮箱地址5秒内只能发送一封邮件</li>
+                <li>超出限制的发送请求将被拒绝</li>
+                <li>这有效防止邮件轰炸和恶意请求</li>
+            </ul>
+        </div>
+        
+        <form id="mailForm">
+            <div class="form-group">
+                <label for="email">收件人邮箱:</label>
+                <input type="email" id="email" name="email" placeholder="请输入邮箱地址" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="count">测试次数 (限速测试):</label>
+                <input type="number" id="count" name="count" value="3" min="1" max="10">
+            </div>
+            
+            <button type="button" class="btn" onclick="sendSingleEmail()">发送单封邮件</button>
+            <button type="button" class="btn" onclick="testRateLimit()">测试限速功能</button>
+            <button type="button" class="btn" onclick="generateCode()">生成验证码</button>
+        </form>
+        
+        <div class="loading" id="loading">
+            <div class="loading-spinner"></div>
+            <p>正在处理请求...</p>
+        </div>
+        
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+    
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            // 禁用所有按钮
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+            // 启用所有按钮
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+        
+        function showResult(message, isSuccess = true) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.style.display = 'block';
+        }
+        
+        async function sendSingleEmail() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('请输入邮箱地址');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`/api/mail/test-send?email=${encodeURIComponent(email)}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showResult(`✅ ${data.data}`, true);
+                } else {
+                    showResult(`❌ ${data.message}`, false);
+                }
+            } catch (error) {
+                showResult(`❌ 请求失败: ${error.message}`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function testRateLimit() {
+            const email = document.getElementById('email').value;
+            const count = document.getElementById('count').value;
+            
+            if (!email) {
+                alert('请输入邮箱地址');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`/api/mail/test-rate-limit?email=${encodeURIComponent(email)}&count=${count}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showResult(`📊 限速测试结果:\n\n${data.data}`, true);
+                } else {
+                    showResult(`❌ ${data.message}`, false);
+                }
+            } catch (error) {
+                showResult(`❌ 请求失败: ${error.message}`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function generateCode() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/api/mail/generate-code');
+                const data = await response.json();
+                
+                if (data.code === 200) {
+                    showResult(`🔢 生成的验证码: ${data.data}`, true);
+                } else {
+                    showResult(`❌ ${data.message}`, false);
+                }
+            } catch (error) {
+                showResult(`❌ 请求失败: ${error.message}`, false);
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 可以在这里添加一些初始化逻辑
+            console.log('邮件测试页面已加载');
+        });
+    </script>
+</body>
+</html>
