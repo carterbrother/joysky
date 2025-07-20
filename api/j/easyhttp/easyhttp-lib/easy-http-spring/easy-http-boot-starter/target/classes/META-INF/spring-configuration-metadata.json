@@ -1,0 +1,87 @@
+{
+  "groups": [
+    {
+      "name": "easy-http",
+      "type": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.retry",
+      "type": "com.github.vizaizai.boot.autoconfigure.RetryProperties",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties",
+      "sourceMethod": "getRetry()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "easy-http.base-endpoint",
+      "type": "java.lang.String",
+      "description": "基本路径",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.base-endpoints",
+      "type": "java.util.Map<java.lang.String,java.lang.String>",
+      "description": "基本路径列表",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.connect-timeout",
+      "type": "java.lang.Integer",
+      "description": "连接超时时间",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.encoding",
+      "type": "java.nio.charset.Charset",
+      "description": "字符编码",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.log-item-prefix",
+      "type": "java.lang.String",
+      "description": "请求日志项前缀",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.log-item-suffix",
+      "type": "java.lang.String",
+      "description": "请求日志项后缀",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.request-log",
+      "type": "java.lang.Boolean",
+      "description": "打印请求日志",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.request-timeout",
+      "type": "java.lang.Integer",
+      "description": "请求超时时间",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.EasyHttpProperties"
+    },
+    {
+      "name": "easy-http.retry.enable",
+      "type": "java.lang.Boolean",
+      "description": "是否启动",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.RetryProperties"
+    },
+    {
+      "name": "easy-http.retry.interval-time",
+      "type": "java.lang.Integer",
+      "description": "间隔时间(ms)",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.RetryProperties"
+    },
+    {
+      "name": "easy-http.retry.max-attempts",
+      "type": "java.lang.Integer",
+      "description": "最大重试次数",
+      "sourceType": "com.github.vizaizai.boot.autoconfigure.RetryProperties"
+    }
+  ],
+  "hints": [],
+  "ignored": {
+    "properties": []
+  }
+}

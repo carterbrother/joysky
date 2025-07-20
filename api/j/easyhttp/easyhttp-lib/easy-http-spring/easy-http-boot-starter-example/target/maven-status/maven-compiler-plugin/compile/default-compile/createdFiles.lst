@@ -1,0 +1,7 @@
+com\github\vizaizai\boot\Application.class
+com\github\vizaizai\boot\config\HelloInterceptor.class
+com\github\vizaizai\boot\service\BookHttpService.class
+com\github\vizaizai\boot\config\EasyHttpConfig.class
+com\github\vizaizai\boot\web\DemoController.class
+com\github\vizaizai\boot\model\ApiResult.class
+com\github\vizaizai\boot\model\Book.class

@@ -1,0 +1,14 @@
+com\github\vizaizai\boot\support\SpringInterceptorGenerator.class
+com\github\vizaizai\boot\support\EasyClientScanner.class
+com\github\vizaizai\boot\support\InterceptorsBean.class
+com\github\vizaizai\boot\annotation\EnableEasyHttp.class
+com\github\vizaizai\boot\support\EnvironmentPathConverter.class
+com\github\vizaizai\boot\autoconfigure\EasyHttpAutoConfiguration.class
+com\github\vizaizai\boot\support\EasyClientFactoryBean.class
+META-INF\spring-configuration-metadata.json
+com\github\vizaizai\boot\autoconfigure\RetryProperties.class
+com\github\vizaizai\boot\annotation\EasyHttpClient.class
+com\github\vizaizai\boot\autoconfigure\EasyHttpProperties.class
+com\github\vizaizai\boot\support\EasyClientSelector.class
+com\github\vizaizai\boot\support\Utils.class
+com\github\vizaizai\boot\support\EasyClientScannerConfigurer.class

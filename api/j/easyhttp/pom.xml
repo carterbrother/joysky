@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.joysky.ice</groupId>
+    <artifactId>easyhttp-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>easyhttp-parent</name>
+    <description>EasyHttp项目聚合模块，用于统一管理所有子模块</description>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- 子模块聚合定义 -->
+    <modules>
+        <module>easyhttp-auth-client</module>
+        <module>easyhttp-auth-clientstart</module>
+        <module>easyhttp-auth</module>
+        <module>easyhttp-app</module>
+        <module>easyhttp-appstart</module>
+        <module>easyhttp-lib/easy-http-spring</module>
+    </modules>
+
+</project>

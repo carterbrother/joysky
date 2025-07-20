@@ -1,0 +1,29 @@
+server:
+  port: 8889
+
+easy-http:
+#  base-endpoint: 127.0.0.1:8888
+  base-endpoints:
+    book: 127.0.0.1:8888
+  retry:
+    enable: true
+    max-attempts: 1
+    interval-time: 0
+  request-log: true
+
+
+
+
+logging:
+  level:
+    root: info
+    com.github.vizaizai: debug
+
+host:
+  system1: 127.0.0.1:8888
+  system2: 127.0.0.1:8889
+
+api:
+  addBooks: /books/{id}
+
+
