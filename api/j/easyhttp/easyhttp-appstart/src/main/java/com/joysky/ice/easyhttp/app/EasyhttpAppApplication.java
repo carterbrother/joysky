@@ -5,7 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@EnableEasyHttp("com.joysky.ice.easyhttp.auth.start.client")
+@EnableEasyHttp({"com.joysky.ice.easyhttp.auth.start.client", "com.joysky.ice.easyhttp.app.client"})
 public class EasyhttpAppApplication {
 
 	public static void main(String[] args) {
